@@ -1,0 +1,33 @@
+# Maven target directory
+/target/*.jar
+/target/*.jar.original
+/target/maven-archiver
+/target/maven-status
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Spring Boot properties override
+application.properties
+application.yml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# Java class files
+*.class
+
+# Build output
+/build/
+
+# Dependency directories
+/.mvn/
