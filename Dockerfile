@@ -1,9 +1,10 @@
-FROM adoptopenjdk/openjdk11:alpine-jre
+FROM eclipse-temurin:11-jre-alpine
 
-ARG artifact=Medsirat_Internship.jar
-
+ARG artifact=target/spring-boot-web.jar
 WORKDIR /opt/app
 
 COPY ${artifact} app.jar
+
+EXPOSE 8080
 
 ENTRYPOINT ["java","-jar","app.jar"]
