@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: spring-boot-app
-        image: localhost:8091/docker-registry/springbootapp:20250710085538
+        image: 20.199.67.177:8090/docker-registry/springbootapp:20250710085538
         ports:
         - containerPort: 8080
       imagePullSecrets:
