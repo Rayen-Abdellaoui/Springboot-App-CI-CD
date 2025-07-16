@@ -7,10 +7,14 @@ pipeline {
     }
  
     environment{
-        GITHUB_aCREDS = 'github-credentials'
+        GITHUB_CREDS = 'github-credentials'
         GITHUB_URL = 'https://github.com/Rayen-Abdellaoui/Springboot-App-CI-CD'
+        GIT_EMAIL = 'abdellaouirayen219@gmail.com'
+        GIT_NAME = 'Rayen-Abdellaoui'
+        DEPLOYMENT_FILE = 'k8s-deployment/deployment.yaml'
+        GITHUB_REPO = 'Rayen-Abdellaoui/Springboot-App-CI-CD'
         SCANNER_HOME= tool 'sonar-scanner'
-        DOCKER_IMAGE = 'rayenabd/springbootapp'
+        //DOCKER_IMAGE = 'rayenabd/springbootapp'
         DOCKER_IMAGE = "${REGISTRY_URL}/${REPO_NAME}/${IMAGE_NAME}"
         REGISTRY_URL = 'localhost:8091'
         REPO_NAME = 'docker-registry'  
@@ -21,7 +25,6 @@ pipeline {
         SONAR_CREDS = 'sonar-token'
         SONAR_TOOL = 'sonar'
         APP_URL = 'http://host.docker.internal:8080'
-        GIT_USER = "Rayen-Abdellaoui"
         CLUSTER_NAME = 'docker-desktop'
         K8S_CREDS = 'k8s-cred'
         NAMESPACE = 'springboot-namespace'
@@ -83,14 +86,14 @@ pipeline {
         
         stage('Trivy File System Scan') {
             steps {
-                sh "trivy fs  --format table . > trivyfs.html"  // --exit-code 1 --severity CRITICAL,HIGH
+                sh "trivy fs  --format table --exit-code 1 --severity CRITICAL,HIGH  . > trivyfs.html" // --exit-code 1 --severity CRITICAL,HIGH
                 archiveArtifacts artifacts: 'trivyfs.html', fingerprint: true
             }
         }
         
         stage('Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '--format HTML' , odcInstallation: 'DP_Check'
+                dependencyCheck additionalArguments: '--format HTML --failOnCVSS 4.0' , odcInstallation: 'DP_Check' // --failOnCVSS 4.0 : accept on low vulnerability severity 
                 archiveArtifacts artifacts: 'dependency-check-report.html', fingerprint: true
             }
         }
@@ -118,7 +121,6 @@ pipeline {
                     def zapStatus = sh(
                         script: """
                              run --rm -u \$(id -u):\$(id -g) \
-                                --network jenkins-net \
                                 -v \$(pwd):/zap/wrk:rw \
                                 zaproxy/zap-stable zap-baseline.py \
                                 -t ${APP_URL} \
@@ -133,7 +135,7 @@ pipeline {
                     if (zapStatus == 2) {
                         echo "ZAP reported WARNs but no FAILs. Continuing pipeline."
                     } else if (zapStatus != 0) {
-                         echo "❌ ZAP scan failed with exit code ${zapStatus}"
+                         error "❌ ZAP scan failed with exit code ${zapStatus}"
                     } else {
                         echo = "ZAP scan passed with no FAILs or WARNs."
                     }
@@ -146,10 +148,9 @@ pipeline {
                 sh "docker stop Spring"
             }
         }
-
-         stage('Trivy Docker Image scan') {
+        stage('Trivy Docker Image scan') {
             steps {
-                    sh "trivy image  --format table ${DOCKER_IMAGE}:${IMAGE_TAG} > trivyimage.html "  // --exit-code 1 --severity CRITICAL,HIGH
+                    sh "trivy image  --format table ${DOCKER_IMAGE}:${IMAGE_TAG} > trivyimage.html " // --exit-code 1 --severity CRITICAL,HIGH
                     archiveArtifacts artifacts: 'trivyimage.html', fingerprint: true
             }
         }
@@ -157,7 +158,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script{
-                        withDockerRegistry(credentialsId: env.NEXUS_CREDS , toolName: env.DOCKER_TOOL, url: "http:${REGISTRY_URL}") {
+                        withDockerRegistry(credentialsId: env.NEXUS_CREDS , toolName: env.DOCKER_TOOL, url: "http://${REGISTRY_URL}") {
                             sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
                     }
                 }
@@ -169,7 +170,6 @@ pipeline {
             script {
               sh """
                 sed -i "s|image: ${DOCKER_IMAGE}:.*|image: ${DOCKER_IMAGE}:${IMAGE_TAG}|" k8s-deployment/deployment.yaml
-                git diff k8s-deployment/deployment.yaml
               """
             }
           }
@@ -177,13 +177,13 @@ pipeline {
         
         stage('Commit and push changes') {
           steps {
-            withCredentials([usernamePassword(credentialsId: env.GITHUB_CREDS,usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+            withCredentials([usernamePassword(credentialsId: env.GITHUB_CREDS, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
               sh '''
-                git config user.email "abdellaouirayen219@gmail.com"
-                git config user.name "Rayen-Abdellaoui"
-                git add k8s-deployment/deployment.yaml
-                git commit -m "Update image tag to ${IMAGE_TAG}"
-                git push https://Rayen-Abdellaoui:${GIT_PASS}@github.com/Rayen-Abdellaoui/Springboot-App-CI-CD.git ${GIT_BRANCH}
+                git config user.email "${GIT_EMAIL}"
+                git config user.name "${GIT_NAME}"
+                git add ${DEPLOYMENT_FILE}
+                git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
+                git push https://${GIT_NAME}:${GIT_PASS}@github.com/${GITHUB_REPO}.git ${GIT_BRANCH}
               '''
             }
           }
@@ -193,7 +193,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script{
-                    withKubeConfig(caCertificate: '', clusterName: env.CLUSTER_NAME, contextName: '', credentialsId: env.K8S_CREDS, namespace: env.NAMESPACE, restrictKubeConfigAccess: false, serverUrl: env.K8S_URL) {
+                    withKubeConfig(caCertificate: '', clusterName: env.CLUSTER_NAME, contextName: '', credentialsId: env.K8S_CREDS, namespace: env.NAMESPACE, restrictKubeConfigAccess: false, serverUrl: 'https://kubernetes.docker.internal:6443') {
                         sh 'kubectl apply -f k8s-deployment/deployment.yaml -f k8s-deployment/service.yaml'
                     }     
                 }
