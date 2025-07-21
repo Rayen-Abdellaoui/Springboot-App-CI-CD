@@ -11,14 +11,15 @@ pipeline {
         GITHUB_URL = 'https://github.com/Rayen-Abdellaoui/Springboot-App-CI-CD'
         GIT_EMAIL = 'abdellaouirayen219@gmail.com'
         GIT_NAME = 'Rayen-Abdellaoui'
+        GIT_BRANCH = 'main'
         DEPLOYMENT_FILE = 'k8s-deployment/deployment.yaml'
         GITHUB_REPO = 'Rayen-Abdellaoui/Springboot-App-CI-CD'
         SCANNER_HOME= tool 'sonar-scanner'
         //DOCKER_IMAGE = 'rayenabd/springbootapp'
-        DOCKER_IMAGE = "${REGISTRY_URL}/${REPO_NAME}/${IMAGE_NAME}"
         REGISTRY_URL = 'localhost:8091'
         REPO_NAME = 'docker-registry'  
         IMAGE_NAME = 'springbootapp'
+        DOCKER_IMAGE = "${REGISTRY_URL}/${REPO_NAME}/${IMAGE_NAME}"
         IMAGE_TAG = "${new Date().format('yyyyMMddHHmmss')}"
         NEXUS_CREDS = 'nexus'        
         DOCKER_TOOL = 'docker'
@@ -110,7 +111,7 @@ pipeline {
         
         stage('Start Spring Boot App') {
             steps {
-                sh "docker run -d --rm --name Spring --network jenkins-net -p 8080:8080  ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                sh "docker run -d --rm --name Spring -p 8080:8080  ${DOCKER_IMAGE}:${IMAGE_TAG}"
                 sleep time: 10, unit: 'SECONDS'
             }
         }
@@ -120,7 +121,7 @@ pipeline {
                 script {
                     def zapStatus = sh(
                         script: """
-                             run --rm -u \$(id -u):\$(id -g) \
+                             docker run --rm -u \$(id -u):\$(id -g) \
                                 -v \$(pwd):/zap/wrk:rw \
                                 zaproxy/zap-stable zap-baseline.py \
                                 -t ${APP_URL} \
@@ -135,9 +136,9 @@ pipeline {
                     if (zapStatus == 2) {
                         echo "ZAP reported WARNs but no FAILs. Continuing pipeline."
                     } else if (zapStatus != 0) {
-                         error "❌ ZAP scan failed with exit code ${zapStatus}"
+                         error "ZAP scan failed with exit code ${zapStatus}"
                     } else {
-                        echo = "ZAP scan passed with no FAILs or WARNs."
+                        echo "ZAP scan passed with no FAILs or WARNs."
                     }
                 }
             }
@@ -150,7 +151,7 @@ pipeline {
         }
         stage('Trivy Docker Image scan') {
             steps {
-                    sh "trivy image  --format table ${DOCKER_IMAGE}:${IMAGE_TAG} > trivyimage.html " // --exit-code 1 --severity CRITICAL,HIGH
+                    sh "trivy image  --format table --exit-code 1 --severity CRITICAL,HIGH ${DOCKER_IMAGE}:${IMAGE_TAG} > trivyimage.html " // --exit-code 1 --severity CRITICAL,HIGH
                     archiveArtifacts artifacts: 'trivyimage.html', fingerprint: true
             }
         }
@@ -206,8 +207,8 @@ pipeline {
                 script{
                     withKubeConfig(caCertificate: '', clusterName: env.CLUSTER_NAME, contextName: '', credentialsId: env.K8S_CREDS, namespace: env.NAMESPACE, restrictKubeConfigAccess: false, serverUrl: env.K8S_URL) {
                         sleep time: 20, unit: 'SECONDS'
-                        sh 'kubectl get pods -n ${NAMESPACE}'
-                        sh 'kubectl get svc -n ${NAMESPACE}'
+                        sh "kubectl get pods -n ${NAMESPACE}"
+                        sh "kubectl get svc -n ${NAMESPACE}"
                     }     
                 }
             }
