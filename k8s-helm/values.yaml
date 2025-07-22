@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: localhost:8091/docker-registry/springbootapp
+  tag: "20250716124147"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 8080
+
+imagePullSecrets:
+  - name: nexus-registry-secret
+
+containerPort: 8080
