@@ -2,11 +2,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: spring-boot-app-service
+  labels:
+    app: spring-boot-app
 spec:
   type: {{ .Values.service.type }}
   selector:
     app: spring-boot-app
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.containerPort }}

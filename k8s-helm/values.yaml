@@ -1,4 +1,5 @@
 replicaCount: 1
+namespace: springboot-namespace
 
 image:
   repository: localhost:8091/docker-registry/springbootapp
@@ -13,3 +14,5 @@ imagePullSecrets:
   - name: nexus-registry-secret
 
 containerPort: 8080
+protName: http
+metricsPath: /actuator/prometheus
