@@ -1,17 +1,19 @@
+{{- if .Values.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: spring-boot-app-servicemonitor
+  name: {{ include "your-chart.fullname" . }}-servicemonitor
   labels:
-    release: prometheus  
+    release: prometheus
 spec:
   selector:
     matchLabels:
-      app: spring-boot-app 
+      app: spring-boot-app
+  endpoints:
+    - path: {{ .Values.serviceMonitor.path }}
+      port: {{ .Values.service.portName | default "http" }}
+      interval: {{ .Values.serviceMonitor.interval }}
   namespaceSelector:
     matchNames:
-      - {{ .Values.namespace }} 
-  endpoints:
-    - port: {{ .Values.portName }} metricsPath
-      path: {{ .Values.metricsPath }}
-      interval: 15s
+      - {{ .Release.Namespace }}
+{{- end }}

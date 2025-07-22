@@ -14,5 +14,10 @@ imagePullSecrets:
   - name: nexus-registry-secret
 
 containerPort: 8080
-protName: http
-metricsPath: /actuator/prometheus
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  path: /actuator/prometheus
+  port: http
+
