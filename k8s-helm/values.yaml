@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: localhost:8091/docker-registry/springbootapp
-  tag: "20250722113857"
+  tag: "20250722114336"
   pullPolicy: IfNotPresent
 
 service:
