@@ -2,7 +2,8 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "your-chart.fullname" . }}-servicemonitor
+  name: servicemonitor
+  namespace: springboot-namespace
   labels:
     release: prometheus
 spec:
