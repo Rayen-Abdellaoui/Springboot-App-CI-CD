@@ -1,0 +1,24 @@
+# rbac-servicemonitor.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: servicemonitor-access
+  namespace: springboot-namespace
+rules:
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["servicemonitors"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-servicemonitor-binding
+  namespace: springboot-namespace
+subjects:
+  - kind: ServiceAccount
+    name: jenkins
+    namespace: springboot-namespace
+roleRef:
+  kind: Role
+  name: servicemonitor-access
+  apiGroup: rbac.authorization.k8s.io
