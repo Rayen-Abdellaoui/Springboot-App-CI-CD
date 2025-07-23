@@ -3,7 +3,7 @@ namespace: springboot-namespace
 
 image:
   repository: localhost:8091/docker-registry/springbootapp
-  tag: "20250723100814"
+  tag: "20250723101151"
   pullPolicy: IfNotPresent
 
 service:
