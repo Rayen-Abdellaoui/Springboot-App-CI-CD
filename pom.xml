@@ -59,7 +59,7 @@
 
         <dependency>
              <groupId>io.qameta.allure</groupId>
-             <artifactId>allure-testng</artifactId> 
+             <artifactId>allure-junit5</artifactId>
              <version>2.25.0</version>
          </dependency>
 
