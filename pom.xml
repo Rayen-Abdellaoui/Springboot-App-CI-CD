@@ -57,6 +57,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <dependency>
+             <groupId>io.qameta.allure</groupId>
+             <artifactId>allure-junit5</artifactId> 
+             <version>2.25.0</version>
+         </dependency>
+
 
     </dependencies>
 
@@ -78,6 +84,14 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
+            <!-- allure for report  -->
+            <plugin>
+                  <groupId>io.qameta.allure</groupId>
+                  <artifactId>allure-maven</artifactId>
+                  <version>2.11.2</version>
+             </plugin>
+
             <!-- jococo for code coverage  -->
             <plugin>
                 <groupId>org.jacoco</groupId>
