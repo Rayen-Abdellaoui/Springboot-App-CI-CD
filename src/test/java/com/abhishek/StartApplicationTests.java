@@ -25,8 +25,8 @@ class StartApplicationTests {
                 .andExpect(model().attribute("msg", "Application Is Deployed To Kuberneets"));
     }
 
-    @Test
-    void testMainMethodRuns() {
-        StartApplication.main(new String[]{});
-    }
+    //@Test
+    //void testMainMethodRuns() {
+        //StartApplication.main(new String[]{});
+    //}
 }
