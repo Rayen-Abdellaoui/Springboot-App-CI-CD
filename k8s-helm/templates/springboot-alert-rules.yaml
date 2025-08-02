@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Values.alerts.name }}
+  namespace: {{ .Values.alerts.namespace }}
+  labels:
+    release: {{ .Values.alerts.release }}
+spec:
+  groups:
+    - name: {{ .Values.alerts.groupName }}
+      rules:
+        - alert: {{ .Values.alerts.alertName }}
+          expr: increase(kube_pod_container_status_restarts_total{namespace="{{ .Values.alerts.targetNamespace }}"}[5m]) > 3
+          for: 2m
+          labels:
+            severity: {{ .Values.alerts.severity | quote }}
+          annotations:
+            summary: "Pod {{`{{ $labels.pod }}`}} is crashing"
+            description: "Container in pod {{`{{ $labels.pod }}`}} in namespace {{ .Values.alerts.targetNamespace }} has restarted more than 3 times in the last 5 minutes."

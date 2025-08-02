@@ -21,3 +21,15 @@ serviceMonitor:
   path: /actuator/prometheus
   port: http
 
+
+alerts:
+  name: springboot-pod-alert
+  namespace: monitoring
+  release: kube-prometheus
+  groupName: springboot.pods
+  alertName: SpringbootPodCrashLooping
+  targetNamespace: springboot-namespace
+  severity: warning
+
+
+
