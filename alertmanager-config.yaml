@@ -1,0 +1,17 @@
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'abdellaouirayen219@gmail.com'
+  smtp_auth_username: 'abdellaouirayen219@gmail.com'
+  smtp_auth_password: 'xxxxxxxxx' # email token
+
+route:
+  receiver: email-notifications
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 3h
+
+receivers:
+  - name: email-notifications
+    email_configs:
+      - to: 'rayenrayen1258@gmail.com'
+        send_resolved: true
