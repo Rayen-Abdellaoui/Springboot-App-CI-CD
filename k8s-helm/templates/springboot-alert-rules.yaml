@@ -9,7 +9,7 @@ spec:
   groups:
     - name: {{ .Values.alerts.groupName }}
       rules:
-        - alert: {{ .Values.alerts.alertName }}
+        - alert: SpringbootPodCrashLooping
           expr: increase(kube_pod_container_status_restarts_total{namespace="{{ .Values.alerts.targetNamespace }}"}[5m]) > 3
           for: 2m
           labels:
@@ -17,3 +17,32 @@ spec:
           annotations:
             summary: "Pod {{`{{ $labels.pod }}`}} is crashing"
             description: "Container in pod {{`{{ $labels.pod }}`}} in namespace {{ .Values.alerts.targetNamespace }} has restarted more than 3 times in the last 5 minutes."
+
+        # High memory usage alert
+        - alert: HighMemoryUsage
+          expr: (container_memory_usage_bytes{namespace="{{ .Values.alerts.targetNamespace }}", container!="", container!="POD"}) > (500 * 1024 * 1024)
+          for: 2m
+          labels:
+            severity: "warning"
+          annotations:
+            summary: "High memory usage in pod {{`{{ $labels.pod }}`}}"
+            description: "Pod {{`{{ $labels.pod }}`}} is using more than 500Mi of memory."
+
+        # High network bandwidth usage alert
+        - alert: HighNetworkReceive
+          expr: rate(container_network_receive_bytes_total{namespace="{{ .Values.alerts.targetNamespace }}"}[1m]) > 10000000
+          for: 1m
+          labels:
+            severity: "warning"
+          annotations:
+            summary: "High network receive traffic on pod {{`{{ $labels.pod }}`}}"
+            description: "Pod {{`{{ $labels.pod }}`}} is receiving over 10MB/s of network traffic."
+
+        - alert: HighNetworkTransmit
+          expr: rate(container_network_transmit_bytes_total{namespace="{{ .Values.alerts.targetNamespace }}"}[1m]) > 10000000
+          for: 1m
+          labels:
+            severity: "warning"
+          annotations:
+            summary: "High network transmit traffic on pod {{`{{ $labels.pod }}`}}"
+            description: "Pod {{`{{ $labels.pod }}`}} is transmitting over 10MB/s of network traffic."
