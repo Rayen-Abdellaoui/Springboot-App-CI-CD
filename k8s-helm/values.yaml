@@ -2,7 +2,7 @@ replicaCount: 1
 namespace: springboot-namespace
 
 image:
-  repository: host.docker.internal:8091/docker-registry/springbootapp
+  repository: localhost:8091/docker-registry/springbootapp
   tag: "20250811160701"
   pullPolicy: IfNotPresent
 
