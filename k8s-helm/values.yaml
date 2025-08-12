@@ -8,12 +8,13 @@ image:
 
 service:
   type: LoadBalancer
-  port: 8080
+  port: 8082
+  portName: http
 
 imagePullSecrets:
   - name: nexus-registry-secret
 
-containerPort: 8080
+containerPort: 8082
 
 serviceMonitor:
   enabled: true
@@ -25,11 +26,19 @@ serviceMonitor:
 alerts:
   name: springboot-pod-alert
   namespace: monitoring
-  release: kube-prometheus
+  release: prometheus-stack
   groupName: springboot.pods
   alertName: SpringbootPodCrashLooping
   targetNamespace: springboot-namespace
   severity: warning
 
+prometheusOperator:
+  enabled: true
+
+prometheus:
+  serviceMonitorNamespaceSelector:
+    matchNames:
+      - monitoring
+      - springboot-namespace
 
 

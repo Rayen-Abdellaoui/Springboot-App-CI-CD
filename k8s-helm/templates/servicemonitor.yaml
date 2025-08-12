@@ -5,7 +5,7 @@ metadata:
   name: servicemonitor
   namespace: monitoring
   labels:
-    release: prometheus
+    release: {{ .Release.Name }}
 spec:
   selector:
     matchLabels:
