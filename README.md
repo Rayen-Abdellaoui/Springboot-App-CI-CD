@@ -47,7 +47,6 @@ docker build -t nexus.local/myapp:latest .
 # Push to Nexus registry
 docker push nexus.local/myapp:latest
 
-
 # Deploy to Kubernetes
 helm upgrade --install myapp ./k8s-helm -n springboot-namespace --create-namespace
 
