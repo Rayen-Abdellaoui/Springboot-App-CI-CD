@@ -46,3 +46,13 @@ spec:
           annotations:
             summary: "High network transmit traffic on pod {{`{{ $labels.pod }}`}}"
             description: "Pod {{`{{ $labels.pod }}`}} is transmitting over 10MB/s of network traffic."
+        
+        # High CPU usage alert
+        - alert: HighCPUUsage
+          expr: (rate(container_cpu_usage_seconds_total{namespace="{{ .Values.alerts.targetNamespace }}", container!="", container!="POD"}[2m])) > 0.8
+          for: 2m
+          labels:
+            severity: "warning"
+          annotations:
+            summary: "High CPU usage in pod {{`{{ $labels.pod }}`}}"
+            description: "Pod {{`{{ $labels.pod }}`}} is using more than 80% of one CPU core."
