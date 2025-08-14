@@ -29,11 +29,10 @@ Jenkins · SonarQube · OWASP ZAP · OWASP Dependency-Check · Trivy · Nexus ·
 10. Monitor & alert with Prometheus, Grafana, Alertmanager  
 
 ## 📂 Structure
-- `helm/` → Helm charts for Kubernetes deployment  
+- `k8s-helm/` → Helm charts for Kubernetes deployment  
 - `Jenkins` → Jenkins pipeline configurations  
 - `src/` → Spring Boot application source code  
 - `Dockerfile` → Docker build instructions  
-- `sonar-project.properties` → SonarQube configuration  
 - `README.md` → Project documentation
 ---
 
@@ -48,8 +47,10 @@ docker build -t nexus.local/myapp:latest .
 # Push to Nexus registry
 docker push nexus.local/myapp:latest
 
+
 # Deploy to Kubernetes
-helm upgrade --install myapp ./helm -n springboot-namespace
+helm upgrade --install myapp ./k8s-helm -n springboot-namespace --create-namespace
+
 ```
 
 ---
