@@ -26,6 +26,6 @@ spec:
               memory: {{ .Values.resources.requests.memory }}
             limits:
               cpu: {{ .Values.resources.limits.cpu }}
-              memory: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
